@@ -12,8 +12,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        $data = Post::latest()->get();   
-        return $response->json($data);
+        $data = Post::all();   
+        return response()->json($data);
     }
 
     /**
@@ -21,7 +21,19 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = Post::create([
+            "title" => $request->title,
+            "content" => $request->content,
+            "author" => $request->author
+        ]);
+
+        
+
+        return response()->json([
+            "success" => true,
+            "message" => "Post başarılı bir şekilde oluşturuldu.",
+            "data" => $data
+        ],201);
     }
 
     /**
@@ -29,7 +41,21 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $data = Post::find($id);
+
+        if($data){
+            $data["success"] = true;
+            $data["message"] = "Başarılı";
+
+            return response()->json($data,200);
+        }else{
+            return response()->json([
+                "success" => false,
+                "message" => "Aranan kayıt bulunamadı."
+            ],404);
+        }
+
+        
     }
 
     /**
@@ -37,7 +63,29 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        
+
+        try {
+            $post = Post::findOrFail($id);
+
+        $post->update([
+            "title" => $request->title,
+            "content" => $request->content,
+            "author" => $request->author
+        ]);
+
+
+        return response()->json([
+            "success" => true,
+            "message" => "Post başarıyla güncellendi.",
+            "data" => $post
+        ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "success" => false,
+                "message" => "Post güncellenirken bir sorun oluştu."
+            ],404);
+        }
     }
 
     /**
