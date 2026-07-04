@@ -13,7 +13,11 @@ class PostController extends Controller
     public function index()
     {
         $data = Post::all();   
-        return response()->json($data);
+        return response()->json([
+            "success" => true,
+            "message" => "Postlar listelendi.",
+            "data" => $data
+        ],200);
     }
 
     /**
@@ -44,14 +48,16 @@ class PostController extends Controller
         $data = Post::find($id);
 
         if($data){
-            $data["success"] = true;
-            $data["message"] = "Başarılı";
 
-            return response()->json($data,200);
+            return response()->json([
+                "success" => true,
+                "message" => "Post bulundu.",
+                "data" => $data
+            ],200);
         }else{
             return response()->json([
                 "success" => false,
-                "message" => "Aranan kayıt bulunamadı."
+                "message" => "Aranan post bulunamadı."
             ],404);
         }
 
@@ -64,9 +70,15 @@ class PostController extends Controller
     public function update(Request $request, string $id)
     {
         
+    
+        $post = Post::find($id);
 
-        try {
-            $post = Post::findOrFail($id);
+        if(!$post){
+            return response()->json([
+                "success" => false,
+                "message" => "Post bulunamadı."
+            ],404);
+        }
 
         $post->update([
             "title" => $request->title,
@@ -80,12 +92,9 @@ class PostController extends Controller
             "message" => "Post başarıyla güncellendi.",
             "data" => $post
         ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                "success" => false,
-                "message" => "Post güncellenirken bir sorun oluştu."
-            ],404);
-        }
+        
+        
+        
     }
 
     /**
@@ -93,6 +102,20 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $post = Post::find($id);
+
+        if(!$post){
+            return response()->json([
+                "success" => false,
+                "message" => "Post bulunamadı."
+            ],404);
+        }
+
+        $post->delete();
+
+        return response()->json([
+            "success" => true,
+            "message" => "Post silindi."
+        ], 200);
     }
 }
